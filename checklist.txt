@@ -1,0 +1,126 @@
+wACCENTR - TODO CHECKLIST
+========================
+
+[ ] 1. Resolve database provider conflict
+      - README says SQLite but schema.prisma uses postgresql
+      - Decide on one and update schema + prisma.ts accordingly
+      - Run: npx prisma migrate dev
+
+[ ] 2. Create .env.local.example
+      - DATABASE_URL
+      - AUTH_SECRET (random string for JWT signing)
+      - ANTHROPIC_API_KEY
+      - ELEVENLABS_API_KEY
+
+[ ] 3. Fill in types/index.ts
+      - User, Language, Session, Attempt, Phrase, Feedback
+
+[ ] 4. Initialize lib/anthropic.ts
+      - Install @anthropic-ai/sdk if not already
+      - Export configured Anthropic client
+
+[ ] 5. Initialize lib/elevenlabs.ts
+      - Install elevenlabs SDK or use fetch-based wrapper
+      - Export TTS and STT helper functions
+
+[ ] 6. Initialize lib/phonemes.ts
+      - Utility to parse/compare phoneme arrays from Claude response
+
+[ ] 7. Wire up auth - signup
+      - Add server action to signup-form.tsx
+      - Hash password with bcrypt
+      - Create User + UserProfile in DB via Prisma
+      - Call createSession() and redirect to /dashboard
+
+[ ] 8. Wire up auth - login
+      - Add server action to login-form.tsx
+      - Look up user by email, verify bcrypt hash
+      - Call createSession() and redirect to /dashboard
+
+[ ] 9. Add auth middleware / route protection
+      - Redirect unauthenticated users away from /dashboard and /practice
+      - Redirect authenticated users away from /auth pages
+
+[ ] 10. Implement GET /api/languages
+       - Read session from cookie
+       - Return user's languages from DB
+
+[ ] 11. Implement POST /api/languages
+       - Read session from cookie
+       - Validate body (code, name)
+       - Insert Language row for the user
+
+[ ] 12. Implement GET /api/phrases
+       - Accept ?lang= query param
+       - Return practice phrases (static list or generated)
+
+[ ] 13. Implement POST /api/tts
+       - Accept { text, language } in body
+       - Call ElevenLabs TTS
+       - Return audio as base64 or stream
+
+[ ] 14. Implement POST /api/stt
+       - Accept audio blob in body
+       - Call ElevenLabs STT
+       - Return transcript string
+
+[ ] 15. Implement POST /api/analyze
+       - Accept { phraseText, transcript, language } in body
+       - Call Claude to compare pronunciation
+       - Return score + phoneme-level feedback
+
+[ ] 16. Build LanguageCard component
+       - Props: language name, code, last practiced, streak
+       - Link to /practice/[lang]
+
+[ ] 17. Build AddLanguageModal component
+       - Language picker (dropdown or search)
+       - On submit: POST /api/languages
+
+[ ] 18. Build dashboard page (app/dashboard/page.tsx)
+       - Fetch user's languages from /api/languages
+       - Render LanguageCard for each
+       - Button to open AddLanguageModal
+
+[ ] 19. Build PhraseCard component
+       - Display phrase text
+       - Play TTS audio button
+       - Slot for user recording and score
+
+[ ] 20. Build RecordButton component
+       - Start/stop mic recording via MediaRecorder API
+       - Emit audio blob on stop
+
+[ ] 21. Build WaveformVisualizer component
+       - Visualize mic input using Web Audio API / canvas
+
+[ ] 22. Build FeedbackPanel component
+       - Display score (0-100)
+       - Show phoneme-level breakdown from Claude response
+
+[ ] 23. Build SessionChat component
+       - Conversational UI for back-and-forth practice
+       - Show phrase, user attempt, feedback in sequence
+
+[ ] 24. Build practice page (app/practice/[lang]/page.tsx)
+       - Fetch phrases for the language
+       - Compose: PhraseCard + RecordButton + WaveformVisualizer + FeedbackPanel
+       - On recording complete: POST /api/stt then POST /api/analyze
+       - Save Attempt to DB via new API route or server action
+
+[ ] 25. Build landing page (app/page.tsx)
+       - Hero section explaining the app
+       - CTA buttons to /auth/sign-up and /auth/login
+
+[ ] 26. Persist practice sessions to DB
+       - Create Session row at start of practice
+       - Save each Attempt (phraseText, score, feedback, phonemes)
+       - Update Session.totalScore and completedAt on finish
+
+[ ] 27. XP and streak logic
+       - Award XP per attempt based on score
+       - Update UserProfile.totalXp and streak after each session
+
+[ ] 28. Achievements system (optional)
+       - Define achievement slugs (e.g. first_session, perfect_score)
+       - Check and unlock after session completes

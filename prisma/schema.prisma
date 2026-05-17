@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  profile      UserProfile?
+  languages    Language[]
+  sessions     Session[]
+  achievements Achievement[]
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String?
+  avatarUrl   String?
+  totalXp     Int      @default(0)
+  streak      Int      @default(0)
+  lastSeenAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Language {
+  id       String    @id @default(cuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code     String
+  name     String
+  sessions Session[]
+  addedAt  DateTime  @default(now())
+
+  @@unique([userId, code])
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  userId       String
+  languageId   String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language     Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  attempts     Attempt[]
+  totalScore   Float?
+  durationSecs Int?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model Attempt {
+  id         String   @id @default(cuid())
+  sessionId  String
+  session    Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  phraseText String
+  audioUrl   String?
+  score      Float?
+  feedback   String?
+  phonemes   Json?
+  createdAt  DateTime @default(now())
+}
+
+model Achievement {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug       String
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, slug])
+}
