@@ -1,126 +1,86 @@
-wACCENTR - TODO CHECKLIST
+ACCENTR - TODO CHECKLIST
 ========================
 
-[ ] 1. Resolve database provider conflict
-      - README says SQLite but schema.prisma uses postgresql
-      - Decide on one and update schema + prisma.ts accordingly
-      - Run: npx prisma migrate dev
+SETUP
+-----
+[ ] 1. Scaffold Next.js app (App Router, TypeScript, Tailwind)
+[ ] 2. Install and configure shadcn/ui
+[ ] 3. Set up .env.local with keys:
+       - DATABASE_URL / DIRECT_URL (Supabase PostgreSQL)
+       - AUTH_SECRET
+       - ANTHROPIC_API_KEY
+       - ELEVENLABS_API_KEY
+[ ] 4. Install dependencies:
+       - @prisma/client, prisma, @prisma/adapter-pg, pg
+       - jose, bcryptjs
+       - @anthropic-ai/sdk
+       - elevenlabs (or fetch wrapper)
 
-[ ] 2. Create .env.local.example
-      - DATABASE_URL
-      - AUTH_SECRET (random string for JWT signing)
-      - ANTHROPIC_API_KEY
-      - ELEVENLABS_API_KEY
+DATABASE
+--------
+[ ] 5. Write prisma/schema.prisma (PostgreSQL)
+       - User (id, email, passwordHash)
+       - UserProfile (displayName, avatarUrl, totalXp, streak)
+       - Language (userId, code, name)
+       - Session (userId, languageId, totalScore, durationSecs, completedAt)
+       - Attempt (sessionId, phraseText, audioUrl, score, feedback, phonemes)
+       - Achievement (userId, slug)
+[ ] 6. Configure prisma.config.ts to load .env.local
+[ ] 7. Run prisma migrate dev --name init
+[ ] 8. Set up lib/prisma.ts singleton (with @prisma/adapter-pg)
 
-[ ] 3. Fill in types/index.ts
-      - User, Language, Session, Attempt, Phrase, Feedback
+AUTH
+----
+[ ] 9.  Set up lib/auth.ts — JWT sessions via jose
+        - createSession(userId, email)
+        - getSession()
+        - deleteSession()
+[ ] 10. Build signup page + form (app/auth/signup/page.tsx)
+        - Server action: hash password, create User + UserProfile, createSession(), redirect
+[ ] 11. Build login page + form (app/auth/login/page.tsx)
+        - Server action: verify bcrypt hash, createSession(), redirect
+[ ] 12. Add middleware.ts for route protection
+        - Unauthenticated → redirect to /auth/login
+        - Authenticated on /auth/* → redirect to /dashboard
 
-[ ] 4. Initialize lib/anthropic.ts
-      - Install @anthropic-ai/sdk if not already
-      - Export configured Anthropic client
+TYPES & CLIENTS
+---------------
+[ ] 13. Fill in types/index.ts
+        - User, Language, Session, Attempt, Phrase, Feedback
+[ ] 14. Initialize lib/anthropic.ts — export Anthropic client
+[ ] 15. Initialize lib/elevenlabs.ts — export TTS + STT helpers
+[ ] 16. Initialize lib/phonemes.ts — parse/compare phoneme arrays
 
-[ ] 5. Initialize lib/elevenlabs.ts
-      - Install elevenlabs SDK or use fetch-based wrapper
-      - Export TTS and STT helper functions
+API ROUTES
+----------
+[ ] 17. GET  /api/languages — return user's languages
+[ ] 18. POST /api/languages — add a language for the user
+[ ] 19. GET  /api/phrases?lang= — return practice phrases
+[ ] 20. POST /api/tts — { text, language } → ElevenLabs audio
+[ ] 21. POST /api/stt — audio blob → ElevenLabs transcript
+[ ] 22. POST /api/analyze — { phraseText, transcript, language } → Claude score + phoneme feedback
 
-[ ] 6. Initialize lib/phonemes.ts
-      - Utility to parse/compare phoneme arrays from Claude response
+COMPONENTS
+----------
+[ ] 23. LanguageCard — name, code, last practiced, streak; links to /practice/[lang]
+[ ] 24. AddLanguageModal — language picker; calls POST /api/languages
+[ ] 25. PhraseCard — phrase text, TTS play button, score slot
+[ ] 26. RecordButton — MediaRecorder start/stop, emits audio blob
+[ ] 27. WaveformVisualizer — Web Audio API canvas visualizer
+[ ] 28. FeedbackPanel — score (0–100) + phoneme breakdown
+[ ] 29. SessionChat — phrase → attempt → feedback conversational loop
 
-[ ] 7. Wire up auth - signup
-      - Add server action to signup-form.tsx
-      - Hash password with bcrypt
-      - Create User + UserProfile in DB via Prisma
-      - Call createSession() and redirect to /dashboard
+PAGES
+-----
+[ ] 30. Landing page (app/page.tsx) — hero + CTAs to signup/login
+[ ] 31. Dashboard (app/dashboard/page.tsx) — language cards + AddLanguageModal
+[ ] 32. Practice page (app/practice/[lang]/page.tsx)
+        - Fetch phrases → PhraseCard + RecordButton + WaveformVisualizer + FeedbackPanel
+        - On recording: POST /api/stt → POST /api/analyze → save Attempt
 
-[ ] 8. Wire up auth - login
-      - Add server action to login-form.tsx
-      - Look up user by email, verify bcrypt hash
-      - Call createSession() and redirect to /dashboard
-
-[ ] 9. Add auth middleware / route protection
-      - Redirect unauthenticated users away from /dashboard and /practice
-      - Redirect authenticated users away from /auth pages
-
-[ ] 10. Implement GET /api/languages
-       - Read session from cookie
-       - Return user's languages from DB
-
-[ ] 11. Implement POST /api/languages
-       - Read session from cookie
-       - Validate body (code, name)
-       - Insert Language row for the user
-
-[ ] 12. Implement GET /api/phrases
-       - Accept ?lang= query param
-       - Return practice phrases (static list or generated)
-
-[ ] 13. Implement POST /api/tts
-       - Accept { text, language } in body
-       - Call ElevenLabs TTS
-       - Return audio as base64 or stream
-
-[ ] 14. Implement POST /api/stt
-       - Accept audio blob in body
-       - Call ElevenLabs STT
-       - Return transcript string
-
-[ ] 15. Implement POST /api/analyze
-       - Accept { phraseText, transcript, language } in body
-       - Call Claude to compare pronunciation
-       - Return score + phoneme-level feedback
-
-[ ] 16. Build LanguageCard component
-       - Props: language name, code, last practiced, streak
-       - Link to /practice/[lang]
-
-[ ] 17. Build AddLanguageModal component
-       - Language picker (dropdown or search)
-       - On submit: POST /api/languages
-
-[ ] 18. Build dashboard page (app/dashboard/page.tsx)
-       - Fetch user's languages from /api/languages
-       - Render LanguageCard for each
-       - Button to open AddLanguageModal
-
-[ ] 19. Build PhraseCard component
-       - Display phrase text
-       - Play TTS audio button
-       - Slot for user recording and score
-
-[ ] 20. Build RecordButton component
-       - Start/stop mic recording via MediaRecorder API
-       - Emit audio blob on stop
-
-[ ] 21. Build WaveformVisualizer component
-       - Visualize mic input using Web Audio API / canvas
-
-[ ] 22. Build FeedbackPanel component
-       - Display score (0-100)
-       - Show phoneme-level breakdown from Claude response
-
-[ ] 23. Build SessionChat component
-       - Conversational UI for back-and-forth practice
-       - Show phrase, user attempt, feedback in sequence
-
-[ ] 24. Build practice page (app/practice/[lang]/page.tsx)
-       - Fetch phrases for the language
-       - Compose: PhraseCard + RecordButton + WaveformVisualizer + FeedbackPanel
-       - On recording complete: POST /api/stt then POST /api/analyze
-       - Save Attempt to DB via new API route or server action
-
-[ ] 25. Build landing page (app/page.tsx)
-       - Hero section explaining the app
-       - CTA buttons to /auth/sign-up and /auth/login
-
-[ ] 26. Persist practice sessions to DB
-       - Create Session row at start of practice
-       - Save each Attempt (phraseText, score, feedback, phonemes)
-       - Update Session.totalScore and completedAt on finish
-
-[ ] 27. XP and streak logic
-       - Award XP per attempt based on score
-       - Update UserProfile.totalXp and streak after each session
-
-[ ] 28. Achievements system (optional)
-       - Define achievement slugs (e.g. first_session, perfect_score)
-       - Check and unlock after session completes
+PERSISTENCE & GAMIFICATION
+---------------------------
+[ ] 33. Save Session + Attempts to DB during practice
+        - Create Session at start, save each Attempt, finalize on completion
+[ ] 34. XP + streak logic — award XP per attempt, update UserProfile after session
+[ ] 35. Achievements — define slugs (first_session, perfect_score, etc.), unlock after session
