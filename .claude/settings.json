@@ -9,7 +9,9 @@
       "Bash(git rm *)",
       "Bash(npm info *)",
       "Bash(node -e ' *)",
-      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate reset --force)"
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate reset --force)",
+      "Bash(npx shadcn@latest add card input label)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/radix-ui/package.json'\\).version\\)\")"
     ],
     "additionalDirectories": [
       "/private/tmp/accentr-backup",
