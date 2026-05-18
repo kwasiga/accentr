@@ -11,7 +11,9 @@
       "Bash(node -e ' *)",
       "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate reset --force)",
       "Bash(npx shadcn@latest add card input label)",
-      "Bash(node -e \"console.log\\(require\\('./node_modules/radix-ui/package.json'\\).version\\)\")"
+      "Bash(node -e \"console.log\\(require\\('./node_modules/radix-ui/package.json'\\).version\\)\")",
+      "Bash(node -e \"const a = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\(a.version, a.exports ? 'has exports' : 'no exports'\\)\")",
+      "Bash(node -e \"const e = require\\('./node_modules/@elevenlabs/react/package.json'\\); console.log\\(e.version, Object.keys\\(e.exports || {}\\).join\\(', '\\)\\)\")"
     ],
     "additionalDirectories": [
       "/private/tmp/accentr-backup",
