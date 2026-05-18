@@ -6,7 +6,10 @@
       "Bash(mv /Users/kwasi/projects/accentr/.env.local.example /tmp/accentr-backup/ && ls /Users/kwasi/projects/accentr/)",
       "Bash(node -e \"console.log\\(require\\('./node_modules/next/package.json'\\).version\\)\")",
       "Bash(mkdir -p /Users/kwasi/projects/accentr/app/auth/signin /Users/kwasi/projects/accentr/app/auth/signup /Users/kwasi/projects/accentr/app/dashboard /Users/kwasi/projects/accentr/app/practice/\\\\[lang\\\\] /Users/kwasi/projects/accentr/app/api/auth/\\\\[...nextauth\\\\] /Users/kwasi/projects/accentr/app/api/phrases /Users/kwasi/projects/accentr/app/api/tts /Users/kwasi/projects/accentr/app/api/stt /Users/kwasi/projects/accentr/app/api/analyze /Users/kwasi/projects/accentr/app/api/languages /Users/kwasi/projects/accentr/components /Users/kwasi/projects/accentr/lib /Users/kwasi/projects/accentr/types /Users/kwasi/projects/accentr/prisma && echo \"done\")",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(npm info *)",
+      "Bash(node -e ' *)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate reset --force)"
     ],
     "additionalDirectories": [
       "/private/tmp/accentr-backup",

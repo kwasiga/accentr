@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model UserProfile {
+  id          String        @id
+  displayName String?
+  avatarUrl   String?
+  totalXp     Int           @default(0)
+  streak      Int           @default(0)
+  lastSeenAt  DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  languages   Language[]
+  sessions    Session[]
+  achievements Achievement[]
+}
+
+model Language {
+  id        String    @id @default(cuid())
+  userId    String
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  name      String
+  sessions  Session[]
+  addedAt   DateTime  @default(now())
+
+  @@unique([userId, code])
+}
+
+model Session {
+  id           String      @id @default(cuid())
+  userId       String
+  languageId   String
+  user         UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language     Language    @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  turns        Turn[]
+  overallScore Float?
+  durationSecs Int?
+  completedAt  DateTime?
+  createdAt    DateTime    @default(now())
+}
+
+model Turn {
+  id            String   @id @default(cuid())
+  sessionId     String
+  session       Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  transcript    String
+  feedback      String
+  phonemeErrors Json?
+  score         Float?
+  createdAt     DateTime @default(now())
+}
+
+model Achievement {
+  id         String      @id @default(cuid())
+  userId     String
+  user       UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug       String
+  unlockedAt DateTime    @default(now())
+
+  @@unique([userId, slug])
+}
